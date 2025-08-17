@@ -11,22 +11,25 @@
     "dev:full": "concurrently \"npm run server\" \"npm run client\"",
     "seed": "node seeder.js"
   },
-  "keywords": ["mern", "webd", "task1"],
+  "keywords": [
+    "mern",
+    "webd",
+    "task1"
+  ],
   "author": "Udaynoor Singh",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^7.5.0",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express-rate-limit": "^6.10.0",
-    "helmet": "^7.0.0",
-    "axios": "^1.4.0"
+    "crypto": "^1.0.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.0.3",
+    "nodemailer": "^6.10.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
-    "concurrently": "^8.2.0"
+    "concurrently": "^8.2.0",
+    "nodemon": "^3.0.1"
   }
 }

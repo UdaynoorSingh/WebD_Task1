@@ -1,70 +1,199 @@
-const express =require('express');
-const jwt=require('jsonwebtoken');
-const User=require('../models/User');
-const router=express.Router();
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const User = require('../models/User');
+const router = express.Router();
 
-const gen_token=(id) =>{
-  return jwt.sign({id}, process.env.JWT_SECRET,{
-    expiresIn: '28d',
-  });
-};
-
-router.post('/register', async (req,res)=>{
-  try{
-    const {name,email,password} = req.body;
-
-    if(!name || !email || !password) return res.status(400).json({error: 'All fields are required'});
-    
-    if(password.length<6) return res.status(400).json({error: 'choose the password must be atleast 6 character long'});
-
-    if(!email.includes('@')) return res.status(400).json({error: 'Please provide a valid email address'});
-    
-
-    const userexist = await User.findOne({email });
-    if(userexist) return res.status(400).json({error: 'User already exists with this email'});
-
-    const user = await User.create({name,email,password});
-
-    if(user){
-      res.status(201).json({_id: user._id,name: user.name,email: user.email,token: gen_token(user._id)});
-    }
-  } 
-  catch(error){
-    console.error('Registration error:', error);
-    
-    if(error.name === 'ValidationError'){
-      const messages = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({ 
-        error: messages.join(', ') 
-      });
-    }
-    
-    res.status(500).json({ 
-      error: 'Server error during registration' 
-    });
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
-router.post('/login', async (req,res) =>{
-  try{
-    const {email,password} = req.body;
+const testEmailConfig = () => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error('Email configuration incomplete!');
+    return false;
+  }
+  return true;
+};
 
-    if(!email || !password) return res.status(400).json({error: 'Email and password both are required'});
-    
-    const user = await User.findOne({email});
-    if(!user) return res.status(401).json({error: 'Invalid credentials' });
-    
-    const isMatching = await user.comparePassword(password);
-    if(!isMatching) return res.status(401).json({error: 'Invalid credentials'});
-    
+const generateVerificationToken = () => {
+  return crypto.randomBytes(32).toString('hex');
+};
 
-    res.json({_id: user._id,name: user.name,email: user.email,token: gen_token(user._id)});
-  } 
-  catch(error){
-    console.error('Login errorr:', error);
-    res.status(500).json({ 
-      error: 'Servers error during login' 
+const sendVerificationEmail = async (email, token, name) => {
+  if (!testEmailConfig()) {
+    return false;
+  }
+
+  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'Verify Your Email - DSA Menu',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #3b82f6;">Welcome to DSA Menu!</h2>
+        <p>Hi ${name},</p>
+        <p>Thank you for registering! Please click the button below to verify your email address:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verificationUrl}" 
+             style="background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
+            Verify Email
+          </a>
+        </div>
+        <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; color: #666;">${verificationUrl}</p>
+        <p>This link will expire in 24 hours.</p>
+        <p>Best regards,<br>DSA Menu Team</p>
+      </div>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Email sending failed:', error);
+    return false;
+  }
+};
+
+router.post('/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({ error: 'User with this email already exists' });
+    }
+
+    const verificationToken = generateVerificationToken();
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    const user = new User({
+      name,
+      email,
+      password,
+      verificationToken,
+      verificationExpires
     });
+    await user.save();
+
+    const emailSent = await sendVerificationEmail(email, verificationToken, name);
+    if (!emailSent) {
+      await User.findByIdAndDelete(user._id);
+      return res.status(500).json({
+        error: 'Failed to send verification email. Please check your email configuration and try again.'
+      });
+    }
+
+    res.status(201).json({
+      message: 'Registration successful! Please check your email to verify your account.',
+      userId: user._id
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Server error during registration' });
+  }
+});
+
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    if (!user.isVerified) {
+      return res.status(401).json({
+        error: 'Please verify your email before logging in. Check your inbox or request a new verification email.',
+        needsVerification: true
+      });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+    res.json({
+      message: 'Login successful',
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Server error during login' });
+  }
+});
+
+router.get('/verify-email', async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ error: 'Verification token is required' });
+
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationExpires: { $gt: Date.now() }
+    });
+
+    if (!user) return res.status(400).json({ error: 'Invalid or expired verification token' });
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationExpires = undefined;
+    await user.save();
+
+    res.json({
+      message: 'Email verified successfully! You can now login to your account.',
+      verified: true
+    });
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({ error: 'Server error during email verification' });
+  }
+});
+
+router.post('/resend-verification', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    if (user.isVerified) {
+      return res.status(400).json({ error: 'User is already verified' });
+    }
+
+    const verificationToken = generateVerificationToken();
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    user.verificationToken = verificationToken;
+    user.verificationExpires = verificationExpires;
+    await user.save();
+
+    const emailSent = await sendVerificationEmail(email, verificationToken, user.name);
+    if (!emailSent) return res.status(500).json({ error: 'Failed to send verification email. Please try again.' });
+
+    res.json({
+      message: 'Verification email sent successfully! Please check your inbox.'
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error while resending verification email' });
   }
 });
 
