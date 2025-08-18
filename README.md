@@ -1,7 +1,7 @@
 ## WebD-Selection-25-26-Task-1
 
-- Name: YOUR NAME HERE
-- Enrollment Number: YOUR ENROLLMENT NUMBER HERE
+- Name: Udaynoor Singh
+- Enrollment Number: IIT2024006
 
 ### Overview
 Full MERN app with:
