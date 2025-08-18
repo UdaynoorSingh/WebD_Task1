@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema({
-  title: {
+  title:{
     type: String,
     required: [true, 'Question title is required'],
     trim: true,
     maxlength: [200, 'Title cannot exceeds more than 200 characters']
   },
-  url: {
+  url:{
     type: String,
     required: [true, 'Question URL is required'],
     trim: true
   }
-}, { timestamps: true });
+},{timestamps:true});
 
 module.exports = mongoose.model('Question', questionSchema);

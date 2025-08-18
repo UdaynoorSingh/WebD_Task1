@@ -1,13 +1,7 @@
-import React, { useState } from 'react';
-import { FiChevronDown, FiChevronUp, FiBookmark, FiStar } from 'react-icons/fi';
+import React, {useState} from 'react';
+import {FiChevronDown, FiChevronUp, FiBookmark, FiStar} from 'react-icons/fi';
 
-export default function CategoryAccordion({
-  categories,
-  onToggleBookmark,
-  onToggleComplete,
-  bookmarks = new Set(),
-  completed = new Set(),
-}) {
+export default function Category({ categories, onToggleBookmark, onToggleComplete, bookmarks = new Set(), completed = new Set()}){
   const [openId, setOpenId] = useState(null);
 
   return(

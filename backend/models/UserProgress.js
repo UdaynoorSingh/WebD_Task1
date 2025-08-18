@@ -1,33 +1,33 @@
 const mongoose = require('mongoose');
 
 const userProgress = new mongoose.Schema({
-  user: {
+  user:{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  completedQuestions: [{
-    question: {
+  completedQuestions:[{
+    question:{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Question'
     },
-    completedAt: {
+    completedAt:{
       type: Date,
       default: Date.now
     }
   }],
-  bookmarkedQuestions: [{
-    question: {
+  bookmarkedQuestions:[{
+    question:{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Question'
     },
-    bookmarkedAt: {
+    bookmarkedAt:{
       type: Date,
       default: Date.now
     }
   }]
-}, { timestamps: true });
+}, {timestamps: true});
 
-userProgress.index({ user: 1 }, { unique: true });
+userProgress.index({user: 1}, {unique: true});
 
 module.exports = mongoose.model('UserProgress', userProgress);

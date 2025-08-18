@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {BrowserRouter, Routes, Route, Link} from 'react-router-dom';
 import api from './services/api';
 import Navbar from './components/Navbar';
-import CategoryAccordion from './components/CategoryAccordion';
+import Category from './components/Category';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import VerifyEmail from './pages/VerifyEmail';
@@ -139,7 +139,7 @@ function Home(){
               {loading ? (
                 <div className="muted" style={{padding: 12}}>Loading...</div>
               ):(
-                <CategoryAccordion
+                <Category
                   categories={data.categories || []}
                   onToggleBookmark={toggleBookmark}
                   onToggleComplete={toggleComplete}

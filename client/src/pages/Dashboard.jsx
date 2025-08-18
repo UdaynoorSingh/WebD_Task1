@@ -4,9 +4,9 @@ import {FiHome, FiLogOut, FiCheckCircle, FiBookmark, FiTrendingUp, FiCalendar} f
 import api from '../services/api';
 
 export default function Dashboard(){
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [data, setdata] = useState(null);
+  const [loading, setloading] = useState(true);
+  const [error, seterror] = useState('');
   const navigate = useNavigate();
 
   useEffect(()=>{
@@ -22,11 +22,11 @@ export default function Dashboard(){
 
     const loadDashboard = async ()=>{
       try{
-        setLoading(true);
-        setError('');
+        setloading(true);
+        seterror('');
         
         const {data} = await api.get('/user/dashboard');
-        setData(data);
+        setdata(data);
       } 
       catch(err){
         if(err?.response?.status === 401){
@@ -35,10 +35,10 @@ export default function Dashboard(){
           navigate('/');
           return;
         }
-        setError(err?.response?.data?.error || 'Failed to load dashboard data');
+        seterror(err?.response?.data?.error || 'Failed to load dashboard data');
       } 
       finally{
-        setLoading(false);
+        setloading(false);
       }
     };
 
@@ -86,7 +86,7 @@ export default function Dashboard(){
             <FiTrendingUp size={20} style={{marginRight: '8px', verticalAlign: 'middle'}}/>
             Your Progress Dashboard
           </div>
-          <div style={{display: 'flex', gap: '12px'}}>
+          <div style={{display:'flex', gap:'12px'}}>
             <button className="button ghost" onClick={() => navigate('/')}>
               <FiHome size={16} style={{marginRight: '6px'}} />
               Back to Home
@@ -106,10 +106,7 @@ export default function Dashboard(){
             <div className="badge" title={`${progressPercentage}%`}>{progressPercentage}%</div>
           </div>
           <div className="progress-bar-bg" title={`Completed: ${data.completedCount}/${totalQuestions}`}>
-            <div 
-              className="progress-bar-fill"
-              style={{width:`${progressPercentage}%`}}
-            />
+            <div className="progress-bar-fill" style={{width:`${progressPercentage}%`}}></div>
           </div>
           <div className="row" style={{justifyContent: 'space-between', fontSize: '1rem', flexWrap: 'wrap', marginTop: 6}}>
             <span className="muted">
@@ -138,8 +135,7 @@ export default function Dashboard(){
                 borderBottom: '1px solid var(--border)',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
+                alignItems: 'center'}}>
                 <div>
                   <a href={item.question.url} target="_blank" rel="noreferrer"style={{color: 'var(--text)', textDecoration: 'none'}}>
                     {item.question.title}

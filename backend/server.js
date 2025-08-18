@@ -16,17 +16,17 @@ app.use('/api/v1/auth', require('./routes/auth'));
 app.use('/api/v1/content', require('./routes/content'));
 app.use('/api/v1/user', require('./routes/user'));
 
-app.get('/api/v1/health', (req, res) => {
-  res.json({ status: 'OK', message: 'DSA Menu API is running' });
+app.get('/api/v1/health', (req, res) =>{
+  res.json({status: 'OK', message: 'DSA Menu API is running'});
 });
 
-app.use((err, req, res, next) => {
+app.use((err, req, res, next) =>{
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+app.use('*', (req, res) =>{
+  res.status(404).json({error: 'Route not found'});
 });
 
 const PORT = process.env.PORT || 5000;

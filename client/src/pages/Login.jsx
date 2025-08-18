@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiMail, FiLock, FiLogIn, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import React, {useState, useEffect} from 'react';
+import {Link, useNavigate, useLocation} from 'react-router-dom';
+import {FiMail, FiLock, FiLogIn, FiCheckCircle, FiAlertCircle} from 'react-icons/fi';
 import api from '../services/api';
 
 export default function Login(){
-  const [formData, setFormData] = useState({
+  const [formdata, setformdata] = useState({
     email: '',
     password: ''
   });
@@ -27,9 +27,9 @@ export default function Login(){
     }
   },[location]);
 
-  const handleChange = (e) =>{
-    setFormData({
-      ...formData,
+  const handleChange=(e)=>{
+    setformdata({
+      ...formdata,
       [e.target.name]: e.target.value
     });
     setError('');
@@ -41,7 +41,7 @@ export default function Login(){
     setError('');
 
     try{
-      const {data} = await api.post('/auth/login',formData);
+      const {data} = await api.post('/auth/login',formdata);
       
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
@@ -58,7 +58,7 @@ export default function Login(){
       setError(errorMessage);
       
       if(err.response?.data?.needsVerification){
-        setError('Please verify your email before logging in. Check your inbox or request a new verification email.');
+        setError('Please verify your email before logging in');
       }
     } 
     finally{
@@ -67,14 +67,14 @@ export default function Login(){
   };
 
   const handleResendVerification = async ()=>{
-    if(!formData.email){
+    if(!formdata.email){
       setError('Please enter your email address first');
       return;
     }
 
     setLoading(true);
     try{
-      await api.post('/auth/resend-verification', {email: formData.email});
+      await api.post('/auth/resend-verification', {email: formdata.email});
       setSuccess('Verification email sent! Please check your inbox.');
     } 
     catch(err){
@@ -122,7 +122,7 @@ export default function Login(){
                   type="email"
                   id="email"
                   name="email"
-                  value={formData.email}
+                  value={formdata.email}
                   onChange={handleChange}
                   placeholder="Enter your email"
                   required
@@ -138,7 +138,7 @@ export default function Login(){
                   type="password"
                   id="password"
                   name="password"
-                  value={formData.password}
+                  value={formdata.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
                   required

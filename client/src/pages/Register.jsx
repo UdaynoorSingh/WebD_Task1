@@ -4,7 +4,7 @@ import {FiUser, FiMail, FiLock, FiUserPlus, FiCheckCircle, FiAlertCircle} from '
 import api from '../services/api';
 
 export default function Register(){
-  const [formData, setFormData] = useState({
+  const [formdata, setFormdata] = useState({
     name: '',
     email: '',
     password: '',
@@ -23,25 +23,25 @@ export default function Register(){
   },[navigate]);
 
   const handleChange = (e)=>{
-    setFormData({
-      ...formData,
+    setFormdata({
+      ...formdata,
       [e.target.name]: e.target.value
     });
     setError('');
   };
 
   const validateForm = ()=>{
-    if(formData.password !== formData.confirmPassword){
+    if(formdata.password !== formdata.confirmPassword){
       setError('Passwords do not match');
       return false;
     }
     
-    if(formData.password.length < 6){
+    if(formdata.password.length < 6){
       setError('Password must be at least 6 characters long');
       return false;
     }
 
-    if(formData.name.trim().length < 2){ 
+    if(formdata.name.trim().length < 2){ 
       setError('Name must be at least 2 characters long');
       return false;
     }
@@ -53,15 +53,14 @@ export default function Register(){
     
     if(!validateForm()) return;
     
-
   setLoading(true);
   setError('');
 
     try{
       const {data} = await api.post('/auth/register',{
-        name: formData.name.trim(),
-        email: formData.email.toLowerCase(),
-        password: formData.password
+        name: formdata.name.trim(),
+        email: formdata.email.toLowerCase(),
+        password: formdata.password
       });
       
       setSuccess(data.message);
@@ -119,13 +118,12 @@ export default function Register(){
                   type="text"
                   id="name"
                   name="name"
-                  value={formData.name}
+                  value={formdata.name}
                   onChange={handleChange}
                   placeholder="Enter your full name"
                   required
                   className="form-input"
-                  minLength="2"
-                />
+                  minLength="2" />
               </div>
             </div>
 
@@ -137,7 +135,7 @@ export default function Register(){
                   type="email"
                   id="email"
                   name="email"
-                  value={formData.email}
+                  value={formdata.email}
                   onChange={handleChange}
                   placeholder="Enter your email address"
                   required
@@ -153,7 +151,7 @@ export default function Register(){
                   type="password"
                   id="password"
                   name="password"
-                  value={formData.password}
+                  value={formdata.password}
                   onChange={handleChange}
                   placeholder="Create a password (min 6 characters)"
                   required
@@ -170,7 +168,7 @@ export default function Register(){
                   type="password"
                   id="confirmPassword"
                   name="confirmPassword"
-                  value={formData.confirmPassword}
+                  value={formdata.confirmPassword}
                   onChange={handleChange}
                   placeholder="Confirm your password"
                   required

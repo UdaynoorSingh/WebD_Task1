@@ -2,14 +2,7 @@ import React, {useState} from 'react';
 import {Link} from 'react-router-dom';
 import {FiSun, FiMoon, FiSearch, FiUser, FiLogOut, FiLogIn} from 'react-icons/fi';
 
-export default function Navbar({
-  user,
-  onLogout,
-  onSearch,
-  onSort,
-  theme,
-  onToggleTheme,
-}) {
+export default function Navbar( {user,onLogout,onSearch,onSort,theme,onToggleTheme,} ){
   const [term, setTerm] = useState('');
   const [sort, setSort] = useState('title_asc');
 
