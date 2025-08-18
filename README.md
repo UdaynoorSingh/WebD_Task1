@@ -19,17 +19,20 @@ Full MERN app with:
 - MongoDB Atlas connection string
 
 ### Environment
-Create a `.env` in the project root using `env.example`:
+Create a `.env` .
 ```
-MONGODB_URI=your_mongodb_atlas_uri
-JWT_SECRET=your_secret
-PORT=5000
+MONGODB_URI=
+JWT_SECRET=
+EMAIL_USER=
+EMAIL_PASS=
+FRONTEND_URL=
+PORT=
+NODE_ENV=
 ```
 
 ### Install
 ```
 npm install
-npm --prefix client install
 ```
 
 ### Seed Database
@@ -39,9 +42,13 @@ npm run seed
 ```
 
 ### Run (Dev)
-Runs server + client together:
+Runs server :
 ```
-npm run dev:full
+npm run dev
+```
+Runs frontend :
+```
+npm start
 ```
 - Server: `http://localhost:5000`
 - Client: `http://localhost:3000`
@@ -63,8 +70,4 @@ npm run dev:full
 ### Frontend Notes
 - Vanilla CSS in `client/src/index.css`
 - Dark/Light toggle persists via `localStorage('theme')`
-- Debounced search (300ms)
 - Web Speech API commands: "Open <term>", "Next", "Previous"
-
-### License
-MIT
